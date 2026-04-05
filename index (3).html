@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>気血津液弁証</title>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;600;700&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --ink: #1a1410;
+  --ink-mid: #4a3f35;
+  --ink-light: #8a7a6a;
+  --parchment: #f7f3ec;
+  --parchment-dark: #ede6d8;
+  --red: #8b1a1a;
+  --red-light: #c44a2a;
+  --gold: #b8860b;
+  --gold-light: #d4a017;
+  --shadow: rgba(26,20,16,0.12);
+}
+
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: var(--parchment);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Paper texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 28px, rgba(139,100,60,0.03) 29px),
+    radial-gradient(ellipse at 30% 10%, rgba(184,134,11,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 90%, rgba(139,26,26,0.05) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app {
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.screen {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+  animation: revealIn 0.55s cubic-bezier(0.22,1,0.36,1) both;
+}
+.screen.active { display: flex; }
+
+@keyframes revealIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ======== WELCOME ======== */
+.welcome-top {
+  background: var(--ink);
+  padding: 52px 32px 56px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.welcome-top::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(184,134,11,0.18) 0%, transparent 65%),
+    radial-gradient(ellipse at 20% 100%, rgba(139,26,26,0.2) 0%, transparent 55%);
+}
+
+.welcome-top::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0; right: 0;
+  height: 36px;
+  background: var(--parchment);
+  clip-path: ellipse(52% 100% at 50% 100%);
+}
+
+.seal {
+  position: relative;
+  z-index: 1;
+  width: 80px; height: 80px;
+  border: 2px solid rgba(184,134,11,0.6);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 24px;
+  font-size: 36px;
+  background: rgba(184,134,11,0.08);
+}
+
+.welcome-top h1 {
+  position: relative; z-index: 1;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--parchment);
+  letter-spacing: 0.25em;
+  margin-bottom: 6px;
+}
+
+.welcome-top .subtitle {
+  position: relative; z-index: 1;
+  font-size: 11px;
+  color: rgba(247,243,236,0.55);
+  letter-spacing: 0.2em;
+  font-weight: 300;
+}
+
+.welcome-body {
+  padding: 40px 24px 32px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.welcome-intro {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 14px;
+  line-height: 2;
+  color: var(--ink-mid);
+  text-align: center;
+  padding: 0 8px;
+}
+
+.cert-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin: 4px 0;
+}
+
+.cert-item {
+  background: var(--ink);
+  color: var(--parchment);
+  border-radius: 8px;
+  padding: 10px 6px;
+  text-align: center;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+}
+
+.cert-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.25;
+}
+
+.cert-item.kyo  { background: #2a4a3a; }
+.cert-item.jitsu { background: #3a2a4a; }
+
+.cert-item small {
+  display: block;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 9px;
+  opacity: 0.6;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid var(--parchment-dark);
+  margin: 4px 0;
+}
+
+.info-row {
+  display: flex; gap: 12px; align-items: center;
+  font-size: 12px; color: var(--ink-light);
+}
+
+.info-row span { color: var(--ink-mid); font-weight: 500; }
+
+.start-btn {
+  margin-top: auto;
+  background: var(--ink);
+  color: var(--parchment);
+  border: none;
+  border-radius: 12px;
+  padding: 18px;
+  font-size: 15px;
+  font-family: 'Noto Serif JP', serif;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  letter-spacing: 0.2em;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.start-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(184,134,11,0.15) 50%, transparent 100%);
+}
+
+.start-btn:active { transform: scale(0.98); opacity: 0.9; }
+
+/* ======== QUIZ ======== */
+.quiz-header {
+  background: var(--ink);
+  padding: 20px 24px 24px;
+  position: relative;
+}
+
+.quiz-header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0; right: 0;
+  height: 20px;
+  background: var(--parchment);
+  clip-path: ellipse(52% 100% at 50% 100%);
+}
+
+.quiz-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.quiz-num {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 13px;
+  color: rgba(247,243,236,0.6);
+  letter-spacing: 0.1em;
+}
+
+.quiz-cat-tag {
+  background: rgba(184,134,11,0.2);
+  border: 1px solid rgba(184,134,11,0.4);
+  color: var(--gold-light);
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 99px;
+  letter-spacing: 0.08em;
+}
+
+.prog-bar {
+  height: 3px;
+  background: rgba(247,243,236,0.1);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.prog-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  border-radius: 99px;
+  transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+.quiz-body {
+  padding: 28px 24px 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.question-text {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.7;
+  color: var(--ink);
+  margin-bottom: 28px;
+  min-height: 72px;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.opt-btn {
+  background: var(--parchment-dark);
+  border: 1.5px solid transparent;
+  border-radius: 10px;
+  padding: 15px 20px;
+  text-align: left;
+  cursor: pointer;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  color: var(--ink);
+  transition: all 0.18s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  line-height: 1.5;
+  position: relative;
+  overflow: hidden;
+}
+
+.opt-pip {
+  width: 10px; height: 10px;
+  border: 2px solid var(--ink-light);
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: all 0.18s;
+}
+
+.opt-btn:active,
+.opt-btn.sel {
+  border-color: var(--gold);
+  background: rgba(184,134,11,0.08);
+}
+
+.opt-btn.sel .opt-pip {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+
+.score-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding: 0 4px;
+}
+
+.score-label-item {
+  font-size: 10px;
+  color: var(--ink-light);
+  text-align: center;
+}
+
+/* ======== RESULT ======== */
+.result-top {
+  background: var(--ink);
+  padding: 44px 28px 60px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.result-top::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 30%, rgba(184,134,11,0.2) 0%, transparent 70%);
+}
+
+.result-top::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0; right: 0;
+  height: 40px;
+  background: var(--parchment);
+  clip-path: ellipse(52% 100% at 50% 100%);
+}
+
+.result-label {
+  position: relative; z-index: 1;
+  font-size: 10px;
+  color: rgba(247,243,236,0.45);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.primary-cert {
+  position: relative; z-index: 1;
+  font-family: 'Noto Serif JP', serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--parchment);
+  letter-spacing: 0.15em;
+  margin-bottom: 8px;
+}
+
+.primary-cert-ruby {
+  position: relative; z-index: 1;
+  font-size: 12px;
+  color: rgba(247,243,236,0.5);
+  letter-spacing: 0.12em;
+  margin-bottom: 20px;
+}
+
+.secondary-badges {
+  position: relative; z-index: 1;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sec-badge {
+  background: rgba(247,243,236,0.1);
+  border: 1px solid rgba(247,243,236,0.25);
+  color: rgba(247,243,236,0.75);
+  font-family: 'Noto Serif JP', serif;
+  font-size: 12px;
+  padding: 4px 14px;
+  border-radius: 99px;
+  letter-spacing: 0.1em;
+}
+
+.result-body {
+  padding: 28px 20px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Score bars */
+.score-overview {
+  background: white;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 2px 12px var(--shadow);
+}
+
+.score-overview h3 {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 13px;
+  color: var(--ink-light);
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.cert-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.cert-row:last-child { margin-bottom: 0; }
+
+.cert-row-name {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 13px;
+  font-weight: 600;
+  width: 44px;
+  flex-shrink: 0;
+  color: var(--ink-mid);
+}
+
+.cert-bar-wrap {
+  flex: 1;
+  height: 8px;
+  background: var(--parchment-dark);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.cert-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 1s cubic-bezier(0.4,0,0.2,1) 0.3s;
+  width: 0%;
+}
+
+.cert-bar-pct {
+  font-size: 11px;
+  color: var(--ink-light);
+  width: 32px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* Info cards */
+.info-block {
+  background: white;
+  border-radius: 14px;
+  padding: 20px;
+  box-shadow: 0 2px 12px var(--shadow);
+}
+
+.info-block-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 13px;
+  color: var(--ink-light);
+  letter-spacing: 0.12em;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-block-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--parchment-dark);
+}
+
+.info-block p {
+  font-size: 13px;
+  line-height: 1.9;
+  color: var(--ink-mid);
+}
+
+.advice-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.adv-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--ink-mid);
+}
+
+.adv-mark {
+  color: var(--gold);
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.caution {
+  font-size: 11px;
+  color: var(--ink-light);
+  text-align: center;
+  padding: 4px 16px;
+  line-height: 1.7;
+}
+
+.bottom-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 0 32px;
+}
+
+.share-btn {
+  background: #06C755;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 17px;
+  font-size: 14px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  width: 100%;
+  letter-spacing: 0.08em;
+  box-shadow: 0 4px 16px rgba(6,199,85,0.3);
+  transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+
+.retry-btn {
+  background: transparent;
+  color: var(--ink-mid);
+  border: 1.5px solid var(--parchment-dark);
+  border-radius: 12px;
+  padding: 15px;
+  font-size: 13px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  width: 100%;
+  letter-spacing: 0.05em;
+  transition: all 0.2s;
+}
+
+.share-btn:active, .retry-btn:active { transform: scale(0.98); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ====== WELCOME ====== -->
+<div class="screen active" id="screen-welcome">
+  <div class="welcome-top">
+    <div class="seal">☯</div>
+    <h1>気血津液弁証</h1>
+    <div class="subtitle">Ki · Ketsu · Shineki Diagnosis</div>
+  </div>
+  <div class="welcome-body">
+    <p class="welcome-intro">中医学の「気・血・津液」の観点から、<br>あなたの体質・体調のパターンを診断します。</p>
+
+    <div class="cert-list">
+      <div class="cert-item kyo">気虚<small>Qi deficiency</small></div>
+      <div class="cert-item kyo">血虚<small>Blood deficiency</small></div>
+      <div class="cert-item kyo">陰虚<small>Yin deficiency</small></div>
+      <div class="cert-item jitsu">気滞<small>Qi stagnation</small></div>
+      <div class="cert-item jitsu">血瘀<small>Blood stasis</small></div>
+      <div class="cert-item jitsu">痰湿<small>Phlegm-damp</small></div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="info-row">📋 <span>15問</span>の症状チェック（約3分）</div>
+    <div class="info-row">🔍 <span>上位2〜3証</span>を複合診断として表示</div>
+    <div class="info-row">⚕️ 医療診断の代替ではありません</div>
+
+    <button class="start-btn" onclick="startQuiz()">診 断 開 始</button>
+  </div>
+</div>
+
+<!-- ====== QUIZ ====== -->
+<div class="screen" id="screen-quiz">
+  <div class="quiz-header">
+    <div class="quiz-top-row">
+      <span class="quiz-num" id="quiz-num">第 1 問 / 15</span>
+      <span class="quiz-cat-tag" id="quiz-cat">気</span>
+    </div>
+    <div class="prog-bar">
+      <div class="prog-fill" id="prog-fill" style="width:6.67%"></div>
+    </div>
+  </div>
+  <div class="quiz-body">
+    <div class="question-text" id="q-text"></div>
+    <div class="options" id="opts"></div>
+    <div class="score-labels">
+      <div class="score-label-item">よくある<br>/ 強い</div>
+      <div class="score-label-item">時々ある<br>/ やや</div>
+      <div class="score-label-item">ない<br>/ なし</div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== RESULT ====== -->
+<div class="screen" id="screen-result">
+  <div class="result-top">
+    <div class="result-label">Primary Pattern</div>
+    <div class="primary-cert" id="primary-cert">気虚</div>
+    <div class="primary-cert-ruby" id="primary-ruby">キキョ</div>
+    <div class="secondary-badges" id="sec-badges"></div>
+  </div>
+  <div class="result-body">
+
+    <div class="score-overview">
+      <h3>証 スコア一覧</h3>
+      <div id="score-bars"></div>
+    </div>
+
+    <div class="info-block">
+      <div class="info-block-title">📖 証の解説</div>
+      <p id="cert-desc"></p>
+    </div>
+
+    <div class="info-block">
+      <div class="info-block-title">🌿 養生アドバイス</div>
+      <div class="advice-rows" id="advice-rows"></div>
+    </div>
+
+    <p class="caution">※ この診断は中医学的な参考情報であり、医療診断・治療を代替するものではありません。症状が続く場合は医師・専門家にご相談ください。</p>
+
+    <div class="bottom-btns">
+      <button class="share-btn" onclick="doShare()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+        LINEでシェアする
+      </button>
+      <button class="retry-btn" onclick="startQuiz()">もう一度診断する</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+// ========== 証データ ==========
+const CERTS = {
+  kiKyo: {
+    name: '気虚', ruby: 'キキョ', en: 'Qi Deficiency',
+    color: '#4a7a5a',
+    desc: '生命エネルギー「気」が不足した状態。脾胃の機能低下により気の生成が滞りやすく、全身の機能が低下します。疲れやすさ・息切れ・食欲不振が主な特徴です。',
+    advice: ['消化に優しい温かい食事を中心に（山芋・かぼちゃ・鶏肉）', '過労を避け、適度な休息と規則正しい生活を心がける', '補気作用のある食材：大棗（なつめ）・黄耆・党参', '激しい運動より、ゆっくりした散歩や気功が適切']
+  },
+  ketsuKyo: {
+    name: '血虚', ruby: 'ケツキョ', en: 'Blood Deficiency',
+    color: '#7a4a4a',
+    desc: '「血」の量的不足、または血の滋養機能の低下した状態。顔色が悪い・めまい・動悸・爪が割れやすい・月経不順などが現れます。心と肝に影響が出やすい状態です。',
+    advice: ['血を補う食材を積極的に（ほうれん草・レバー・黒ごま・クコの実）', '目の酷使を避け、十分な睡眠で肝血を養う', '補血作用：当帰・熟地黄・阿膠が代表的', '月経前後は特に栄養バランスに気をつける']
+  },
+  inKyo: {
+    name: '陰虚', ruby: 'インキョ', en: 'Yin Deficiency',
+    color: '#4a4a7a',
+    desc: '体を潤す「陰液」が不足し、相対的な熱（虚熱）が生じた状態。ほてり・のぼせ・口乾・夜間の発汗・不眠などが特徴で、腎・肝・肺の陰虚が多くみられます。',
+    advice: ['滋陰食材を取り入れる（豆腐・白きくらげ・梨・蜂蜜・黒豆）', '辛い・乾燥した食品、飲酒を控える', '夜更かし・過労を避け、規則正しい就寝時間を守る', '滋陰補腎：枸杞子（クコ）・天門冬・麦門冬']
+  },
+  kiTai: {
+    name: '気滞', ruby: 'キタイ', en: 'Qi Stagnation',
+    color: '#7a6a3a',
+    desc: '「気」の流れが滞った状態。精神的ストレスや感情の抑圧で起こりやすく、胸・脇腹の張り感、気分の波、ため息が多い、消化不良などが現れます。肝の疏泄機能と深く関わります。',
+    advice: ['気を巡らせる食材（柑橘類・セロリ・らっきょう・バラ茶）', 'ストレスを溜め込まず、感情を適切に発散する', '適度な有酸素運動で気の流れを促進する', '理気作用：玫瑰花（ローズ）・陳皮・柴胡']
+  },
+  ketsuO: {
+    name: '血瘀', ruby: 'ケツオ', en: 'Blood Stasis',
+    color: '#6a3a5a',
+    desc: '「血」の流れが滞り、局所に停滞した状態。刺すような固定した痛み・暗色の唇や舌・皮下出血・月経血に塊がある・肌の暗さなどが特徴です。気滞・寒冷・外傷などが原因になります。',
+    advice: ['活血食材を取り入れる（さんざし・酢・玉ねぎ・黒きくらげ）', '体を冷やさず、特に下腹部・足を温める', '適度な運動で血流を改善する（ウォーキング・ストレッチ）', '活血化瘀：丹参・川芎・桃仁・紅花']
+  },
+  tanShitsu: {
+    name: '痰湿', ruby: 'タンシツ', en: 'Phlegm-Damp',
+    color: '#5a6a3a',
+    desc: '水液代謝の障害により「痰湿」が体内に蓄積した状態。身体の重だるさ・むくみ・胃もたれ・粘り気のある痰・頭重感などが特徴。脾の運化機能低下が根本原因となります。',
+    advice: ['脂肪・甘いもの・生もの・冷たいものを控える', '化湿食材：はとむぎ・冬瓜・大根・わかめ・緑茶', '適度な運動で水分代謝を促す（特に汗をかく運動）', '健脾化湿：茯苓・白朮・陳皮・半夏']
+  }
+};
+
+// ========== 質問データ ==========
+// 各質問: { cat, text, cert（点数加算先）}
+// スコア: よくある=3, 時々ある=2, ない=0
+const QUESTIONS = [
+  // 気虚
+  { cat: '気', text: '少し動いただけで疲れやすく、倦怠感が続きますか？', cert: 'kiKyo' },
+  { cat: '気', text: '声が小さい・話すのが億劫、息切れしやすいですか？', cert: 'kiKyo' },
+  { cat: '気', text: '食欲がない、食後に胃がもたれる、軟便・下痢になりやすいですか？', cert: 'kiKyo' },
+  // 血虚
+  { cat: '血', text: '顔色が青白い・黄色みがかっている、爪が割れやすいですか？', cert: 'ketsuKyo' },
+  { cat: '血', text: 'めまい・立ちくらみがある、手足がしびれることがありますか？', cert: 'ketsuKyo' },
+  { cat: '血', text: '夜に眠れない・夢が多い、動悸を感じることがありますか？', cert: 'ketsuKyo' },
+  // 陰虚
+  { cat: '陰', text: '手のひら・足の裏・胸に熱感がある（五心煩熱）ですか？', cert: 'inKyo' },
+  { cat: '陰', text: '口や喉の乾きが強い、特に夜間に強くなりますか？', cert: 'inKyo' },
+  { cat: '陰', text: '寝汗をかく、夕方から夜にかけてほてりが出やすいですか？', cert: 'inKyo' },
+  // 気滞
+  { cat: '気', text: '胸・脇腹・乳房などが張って不快感がありますか？', cert: 'kiTai' },
+  { cat: '気', text: 'イライラ・気分の波が激しい、ため息をよくつきますか？', cert: 'kiTai' },
+  // 血瘀
+  { cat: '血', text: '刺すような固定した痛みがある（頭痛・生理痛・慢性痛）ですか？', cert: 'ketsuO' },
+  { cat: '血', text: '肌が暗い・唇や歯茎が暗紫色、舌に青紫の斑がありますか？', cert: 'ketsuO' },
+  // 痰湿
+  { cat: '津', text: '体が重だるい、頭重感・むくみが気になりますか？', cert: 'tanShitsu' },
+  { cat: '津', text: '胃もたれや吐き気、粘り気のある痰・白い苔が舌にありますか？', cert: 'tanShitsu' },
+];
+
+const CAT_COLORS = { '気': '#b8860b', '血': '#8b1a1a', '陰': '#1a3a6b', '津': '#2a6b5a' };
+
+let curQ = 0;
+let scores = { kiKyo: 0, ketsuKyo: 0, inKyo: 0, kiTai: 0, ketsuO: 0, tanShitsu: 0 };
+const MAX_PER_CERT = { kiKyo: 9, ketsuKyo: 9, inKyo: 9, kiTai: 6, ketsuO: 6, tanShitsu: 6 };
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active');
+    s.style.display = 'none';
+  });
+  const el = document.getElementById('screen-' + id);
+  el.style.display = 'flex';
+  requestAnimationFrame(() => el.classList.add('active'));
+}
+
+function startQuiz() {
+  curQ = 0;
+  Object.keys(scores).forEach(k => scores[k] = 0);
+  showScreen('quiz');
+  renderQ();
+}
+
+function renderQ() {
+  const q = QUESTIONS[curQ];
+  document.getElementById('quiz-num').textContent = `第 ${curQ + 1} 問 / ${QUESTIONS.length}`;
+  document.getElementById('quiz-cat').textContent = q.cat;
+  document.getElementById('quiz-cat').style.color = CAT_COLORS[q.cat] || '#b8860b';
+  document.getElementById('quiz-cat').style.borderColor = (CAT_COLORS[q.cat] || '#b8860b') + '66';
+  document.getElementById('quiz-cat').style.background = (CAT_COLORS[q.cat] || '#b8860b') + '22';
+  document.getElementById('prog-fill').style.width = `${((curQ + 1) / QUESTIONS.length) * 100}%`;
+  document.getElementById('q-text').textContent = q.text;
+
+  const opts = document.getElementById('opts');
+  opts.innerHTML = '';
+  const choices = [
+    { label: 'よくある / 強い', score: 3 },
+    { label: '時々ある / やや', score: 2 },
+    { label: 'ない / なし',     score: 0 },
+  ];
+  choices.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'opt-btn';
+    btn.innerHTML = `<span class="opt-pip"></span>${c.label}`;
+    btn.onclick = () => pick(c.score, btn);
+    opts.appendChild(btn);
+  });
+}
+
+function pick(score, btn) {
+  document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  scores[QUESTIONS[curQ].cert] += score;
+  setTimeout(() => {
+    curQ++;
+    if (curQ >= QUESTIONS.length) showResult();
+    else renderQ();
+  }, 320);
+}
+
+function showResult() {
+  // Normalize to 100
+  const pcts = {};
+  Object.keys(scores).forEach(k => {
+    pcts[k] = Math.round((scores[k] / MAX_PER_CERT[k]) * 100);
+  });
+
+  // Sort
+  const sorted = Object.keys(pcts).sort((a, b) => pcts[b] - pcts[a]);
+  const primary = sorted[0];
+  const secondaries = sorted.slice(1, 3).filter(k => pcts[k] >= 30);
+
+  // Header
+  document.getElementById('primary-cert').textContent = CERTS[primary].name;
+  document.getElementById('primary-ruby').textContent = CERTS[primary].ruby + '（' + CERTS[primary].en + '）';
+
+  const secEl = document.getElementById('sec-badges');
+  secEl.innerHTML = secondaries.length
+    ? secondaries.map(k => `<span class="sec-badge">${CERTS[k].name}</span>`).join('') 
+    : '';
+
+  // Score bars
+  const barsEl = document.getElementById('score-bars');
+  barsEl.innerHTML = sorted.map(k => `
+    <div class="cert-row">
+      <div class="cert-row-name">${CERTS[k].name}</div>
+      <div class="cert-bar-wrap">
+        <div class="cert-bar-fill" style="background:${CERTS[k].color};width:0%" data-w="${pcts[k]}%"></div>
+      </div>
+      <div class="cert-bar-pct">${pcts[k]}%</div>
+    </div>
+  `).join('');
+
+  // Desc & advice (primary)
+  document.getElementById('cert-desc').textContent = CERTS[primary].desc;
+  document.getElementById('advice-rows').innerHTML = CERTS[primary].advice.map(a =>
+    `<div class="adv-row"><span class="adv-mark">◈</span><span>${a}</span></div>`
+  ).join('');
+
+  showScreen('result');
+
+  setTimeout(() => {
+    document.querySelectorAll('.cert-bar-fill').forEach(el => {
+      el.style.width = el.dataset.w;
+    });
+  }, 100);
+}
+
+function doShare() {
+  const primary = document.getElementById('primary-cert').textContent;
+  const secs = [...document.querySelectorAll('.sec-badge')].map(e => e.textContent).join('・');
+  const text = `【気血津液弁証】\n主証：${primary}${secs ? '\n兼証：' + secs : ''}\n\nあなたも診断してみてください！`;
+
+  if (typeof liff !== 'undefined' && liff.isInClient()) {
+    liff.shareTargetPicker([{ type: 'text', text }]);
+  } else {
+    alert('診断結果：\n' + text + '\n\n※ LINEアプリ内で開くとシェアできます');
+  }
+}
+
+// LIFF init
+(async () => {
+  try {
+    await liff.init({ liffId: '2009374245-zTFtP0ta' });
+  } catch(e) {
+    console.log('Browser mode:', e.message);
+  }
+})();
+</script>
+</body>
+</html>
